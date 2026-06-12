@@ -1,5 +1,90 @@
+import streamlit as st
+import pandas as pd
+import gspread
+from google.oauth2.service_account import Credentials
+
 # =====================================================
-# VIEW TEMPLATE
+# CONFIG
+# =====================================================
+
+st.set_page_config(
+    page_title="Template BO",
+    page_icon="📚",
+    layout="wide"
+)
+
+# =====================================================
+# GOOGLE SHEETS CONNECTION
+# =====================================================
+
+SPREADSHEET_ID = "1vhdIpJ9esIMPVuGRbvU4uU6qCrTQ8D8bpLOA_vH3yhg"
+WORKSHEET_NAME = "Template"
+
+@st.cache_resource
+def connect_sheet():
+
+    scope = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive"
+    ]
+
+    creds = Credentials.from_service_account_info(
+        st.secrets["gcp_service_account"],
+        scopes=scope
+    )
+
+    client = gspread.authorize(creds)
+
+    spreadsheet = client.open_by_key(
+        SPREADSHEET_ID
+    )
+
+    worksheet = spreadsheet.worksheet(
+        WORKSHEET_NAME
+    )
+
+    return worksheet
+
+
+sheet = connect_sheet()
+
+# =====================================================
+# LOAD DATA
+# =====================================================
+
+@st.cache_data(ttl=10)
+def load_data():
+
+    data = sheet.get_all_records()
+
+    if not data:
+        return pd.DataFrame(
+            columns=[
+                "Kategori",
+                "Submenu",
+                "NamaTemplate",
+                "IsiTemplate"
+            ]
+        )
+
+    return pd.DataFrame(data)
+
+# =====================================================
+# SIDEBAR
+# =====================================================
+
+st.sidebar.title("📚 TEMPLATE BO")
+
+menu = st.sidebar.radio(
+    "Menu",
+    [
+        "Lihat Template",
+        "Kelola Template"
+    ]
+)
+
+# =====================================================
+# LIHAT TEMPLATE
 # =====================================================
 
 if menu == "Lihat Template":
@@ -8,13 +93,21 @@ if menu == "Lihat Template":
 
     st.title("📚 Template BO")
 
+    if df.empty:
+        st.warning("Belum ada data template.")
+        st.stop()
+
+    # =================================================
+    # SEARCH TEMPLATE
+    # =================================================
+
     search = st.text_input(
         "🔍 Cari Kode Template"
     )
 
-    # ==========================================
-    # SEARCH BERDASARKAN NamaTemplate
-    # ==========================================
+    # =================================================
+    # MODE SEARCH
+    # =================================================
 
     if search.strip():
 
@@ -29,7 +122,7 @@ if menu == "Lihat Template":
             )
         ]
 
-        if len(hasil) == 0:
+        if hasil.empty:
             st.warning(
                 "Kode template tidak ditemukan."
             )
@@ -37,34 +130,31 @@ if menu == "Lihat Template":
 
         row = hasil.iloc[0]
 
+        st.divider()
+
         st.subheader(
-            row["NamaTemplate"]
+            str(row["NamaTemplate"])
         )
 
         st.text_area(
             "Isi Template",
-            value=row["IsiTemplate"],
+            value=str(row["IsiTemplate"]),
             height=300
         )
 
         st.stop()
 
-    # ==========================================
-    # MODE NORMAL (DROPDOWN)
-    # ==========================================
+    # =================================================
+    # MODE DROPDOWN
+    # =================================================
 
     kategori_list = sorted(
         df["Kategori"]
         .dropna()
+        .astype(str)
         .unique()
         .tolist()
     )
-
-    if len(kategori_list) == 0:
-        st.warning(
-            "Belum ada data."
-        )
-        st.stop()
 
     kategori = st.selectbox(
         "Kategori",
@@ -78,6 +168,7 @@ if menu == "Lihat Template":
     submenu_list = sorted(
         df_kategori["Submenu"]
         .dropna()
+        .astype(str)
         .unique()
         .tolist()
     )
@@ -94,6 +185,7 @@ if menu == "Lihat Template":
     template_list = sorted(
         df_submenu["NamaTemplate"]
         .dropna()
+        .astype(str)
         .tolist()
     )
 
@@ -106,10 +198,94 @@ if menu == "Lihat Template":
         df_submenu["NamaTemplate"] == template
     ].iloc[0]
 
-    st.subheader(template)
+    st.divider()
+
+    st.subheader(
+        str(row["NamaTemplate"])
+    )
 
     st.text_area(
         "Isi Template",
-        value=row["IsiTemplate"],
+        value=str(row["IsiTemplate"]),
         height=300
+    )
+
+# =====================================================
+# KELOLA TEMPLATE
+# =====================================================
+
+if menu == "Kelola Template":
+
+    st.title("⚙️ Kelola Template")
+
+    df = load_data()
+
+    edited_df = st.data_editor(
+        df,
+        use_container_width=True,
+        hide_index=True,
+        num_rows="dynamic"
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        if st.button(
+            "💾 Simpan Perubahan",
+            use_container_width=True
+        ):
+
+            try:
+
+                edited_df = edited_df.fillna("")
+
+                data_to_save = [
+                    edited_df.columns.tolist()
+                ]
+
+                data_to_save.extend(
+                    edited_df.values.tolist()
+                )
+
+                sheet.clear()
+
+                sheet.update(
+                    data_to_save
+                )
+
+                st.cache_data.clear()
+
+                st.success(
+                    "Data berhasil disimpan ke Google Sheets."
+                )
+
+                st.rerun()
+
+            except Exception as e:
+
+                st.error(
+                    f"Gagal menyimpan data: {e}"
+                )
+
+    with col2:
+
+        if st.button(
+            "🔄 Refresh",
+            use_container_width=True
+        ):
+
+            st.cache_data.clear()
+            st.rerun()
+
+    st.info(
+        """
+➕ Tambah template = tambah baris baru
+
+✏️ Edit template = ubah langsung pada tabel
+
+🗑️ Hapus template = hapus baris
+
+💾 Simpan Perubahan = simpan ke Google Sheets
+"""
     )
