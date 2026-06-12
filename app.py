@@ -14,7 +14,14 @@ st.set_page_config(
 )
 
 # =====================================================
-# GOOGLE SHEETS CONNECTION
+# GOOGLE SHEET
+# =====================================================
+
+SPREADSHEET_ID = "1vhdIpJ9esIMPVuGRbvU4uU6qCrTQ8D8bpLOA_vH3yhg"
+WORKSHEET_NAME = "Template"
+
+# =====================================================
+# CONNECT
 # =====================================================
 
 @st.cache_resource
@@ -33,10 +40,12 @@ def connect_sheet():
     client = gspread.authorize(creds)
 
     spreadsheet = client.open_by_key(
-        "1vhdIpJ9esIMPVuGRbvU4uU6qCrTQ8D8bpLOA_vH3yhg"
+        SPREADSHEET_ID
     )
 
-    worksheet = spreadsheet.worksheet("Template")
+    worksheet = spreadsheet.worksheet(
+        WORKSHEET_NAME
+    )
 
     return worksheet
 
@@ -52,6 +61,7 @@ def load_data():
     data = sheet.get_all_records()
 
     if len(data) == 0:
+
         return pd.DataFrame(
             columns=[
                 "Kategori",
@@ -62,6 +72,22 @@ def load_data():
         )
 
     return pd.DataFrame(data)
+
+# =====================================================
+# SAVE DATA
+# =====================================================
+
+def save_dataframe(df):
+
+    sheet.clear()
+
+    sheet.update(
+        [df.columns.tolist()]
+        +
+        df.fillna("").values.tolist()
+    )
+
+    st.cache_data.clear()
 
 # =====================================================
 # SIDEBAR
@@ -78,7 +104,7 @@ menu = st.sidebar.radio(
 )
 
 # =====================================================
-# VIEW TEMPLATE
+# LIHAT TEMPLATE
 # =====================================================
 
 if menu == "Lihat Template":
@@ -93,37 +119,43 @@ if menu == "Lihat Template":
 
     if search:
 
-        df = df[
-            df.astype(str)
-            .apply(
-                lambda x: x.str.contains(
-                    search,
-                    case=False,
-                    na=False
-                )
+        mask = df.astype(str).apply(
+            lambda x:
+            x.str.contains(
+                search,
+                case=False,
+                na=False
             )
-            .any(axis=1)
-        ]
+        ).any(axis=1)
+
+        df = df[mask]
+
+    if len(df) == 0:
+
+        st.warning(
+            "Template tidak ditemukan."
+        )
+
+        st.stop()
 
     kategori_list = sorted(
-        df["Kategori"].dropna().unique().tolist()
+        df["Kategori"]
+        .dropna()
+        .unique()
+        .tolist()
     )
-
-    if len(kategori_list) == 0:
-        st.warning("Belum ada data.")
-        st.stop()
 
     kategori = st.selectbox(
         "Kategori",
         kategori_list
     )
 
-    df_kategori = df[
+    df1 = df[
         df["Kategori"] == kategori
     ]
 
     submenu_list = sorted(
-        df_kategori["Submenu"]
+        df1["Submenu"]
         .dropna()
         .unique()
         .tolist()
@@ -134,13 +166,12 @@ if menu == "Lihat Template":
         submenu_list
     )
 
-    df_submenu = df_kategori[
-        df_kategori["Submenu"] == submenu
+    df2 = df1[
+        df1["Submenu"] == submenu
     ]
 
     template_list = sorted(
-        df_submenu["NamaTemplate"]
-        .dropna()
+        df2["NamaTemplate"]
         .tolist()
     )
 
@@ -149,24 +180,31 @@ if menu == "Lihat Template":
         template_list
     )
 
-    row = df_submenu[
-        df_submenu["NamaTemplate"] == template
+    row = df2[
+        df2["NamaTemplate"] == template
     ].iloc[0]
 
     isi = row["IsiTemplate"]
+
+    st.markdown("---")
 
     st.subheader(template)
 
     st.text_area(
         "Isi Template",
-        isi,
-        height=250
+        value=isi,
+        height=300,
+        disabled=True
     )
 
-    st.code(isi)
+    st.download_button(
+        "📥 Download TXT",
+        isi,
+        file_name=f"{template}.txt"
+    )
 
 # =====================================================
-# MANAGE TEMPLATE
+# KELOLA TEMPLATE
 # =====================================================
 
 if menu == "Kelola Template":
@@ -175,60 +213,128 @@ if menu == "Kelola Template":
 
     df = load_data()
 
-    edited_df = st.data_editor(
-        df,
-        use_container_width=True,
-        num_rows="dynamic",
-        hide_index=True
+    tab1, tab2 = st.tabs(
+        [
+            "Tambah Template",
+            "Edit Data"
+        ]
     )
 
-    col1, col2 = st.columns(2)
+    # ==========================================
+    # TAB TAMBAH
+    # ==========================================
 
-    with col1:
+    with tab1:
 
-        if st.button(
-            "💾 Simpan Perubahan",
-            use_container_width=True
-        ):
+        kategori = st.text_input(
+            "Kategori"
+        )
 
-            sheet.clear()
+        submenu = st.text_input(
+            "Submenu"
+        )
 
-            sheet.update(
-                [
-                    edited_df.columns.tolist()
-                ]
-                +
-                edited_df.values.tolist()
-            )
+        nama = st.text_input(
+            "Nama Template"
+        )
 
-            st.cache_data.clear()
-
-            st.success(
-                "Data berhasil disimpan ke Google Sheets"
-            )
-
-            st.rerun()
-
-    with col2:
+        isi = st.text_area(
+            "Isi Template",
+            height=250
+        )
 
         if st.button(
-            "🔄 Refresh",
-            use_container_width=True
+            "➕ Tambah Template"
         ):
 
-            st.cache_data.clear()
-            st.rerun()
+            if (
+                kategori
+                and submenu
+                and nama
+                and isi
+            ):
 
-    st.info(
-        """
-        Cara penggunaan:
+                new_row = pd.DataFrame([
+                    {
+                        "Kategori": kategori,
+                        "Submenu": submenu,
+                        "NamaTemplate": nama,
+                        "IsiTemplate": isi
+                    }
+                ])
 
-        ➕ Tambah template = tambah baris baru
+                df = pd.concat(
+                    [df, new_row],
+                    ignore_index=True
+                )
 
-        ✏️ Edit template = ubah langsung pada tabel
+                save_dataframe(df)
 
-        🗑️ Hapus template = hapus baris
+                st.success(
+                    "Template berhasil ditambahkan"
+                )
 
-        💾 Simpan Perubahan = simpan ke Google Sheets
-        """
-    )
+                st.rerun()
+
+            else:
+
+                st.warning(
+                    "Lengkapi semua data."
+                )
+
+    # ==========================================
+    # TAB EDIT
+    # ==========================================
+
+    with tab2:
+
+        edited_df = st.data_editor(
+            df,
+            use_container_width=True,
+            num_rows="dynamic",
+            hide_index=True
+        )
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+
+            if st.button(
+                "💾 Simpan Perubahan",
+                use_container_width=True
+            ):
+
+                save_dataframe(
+                    edited_df
+                )
+
+                st.success(
+                    "Perubahan berhasil disimpan"
+                )
+
+                st.rerun()
+
+        with col2:
+
+            if st.button(
+                "🔄 Refresh",
+                use_container_width=True
+            ):
+
+                st.cache_data.clear()
+
+                st.rerun()
+
+        st.info(
+            """
+            Cara penggunaan:
+
+            ➕ Tambah baris = tambah template
+
+            ✏️ Edit langsung di tabel
+
+            🗑️ Hapus baris = hapus template
+
+            💾 Simpan Perubahan untuk menyimpan ke Google Sheets
+            """
+        )
