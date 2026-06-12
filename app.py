@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
-import streamlit.components.v1 as components
 
 # =====================================================
 # CONFIG
@@ -15,45 +14,7 @@ st.set_page_config(
 )
 
 # =====================================================
-# GOOGLE SHEET
-# =====================================================
-
-SPREADSHEET_ID = "1vhdIpJ9esIMPVuGRbvU4uU6qCrTQ8D8bpLOA_vH3yhg"
-WORKSHEET_NAME = "Template"
-
-# =====================================================
-# CSS
-# =====================================================
-
-st.markdown("""
-<style>
-
-.main {
-    padding-top: 1rem;
-}
-
-.block-container {
-    max-width: 1400px;
-}
-
-.copy-btn {
-    background-color: #16a34a;
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.copy-btn:hover {
-    background-color: #15803d;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-# =====================================================
-# GOOGLE SHEET CONNECTION
+# GOOGLE SHEETS CONNECTION
 # =====================================================
 
 @st.cache_resource
@@ -72,200 +33,202 @@ def connect_sheet():
     client = gspread.authorize(creds)
 
     spreadsheet = client.open_by_key(
-        SPREADSHEET_ID
+        "1vhdIpJ9esIMPVuGRbvU4uU6qCrTQ8D8bpLOA_vH3yhg"
     )
 
-    worksheet = spreadsheet.worksheet(
-        WORKSHEET_NAME
-    )
+    worksheet = spreadsheet.worksheet("Template")
 
     return worksheet
+
+sheet = connect_sheet()
 
 # =====================================================
 # LOAD DATA
 # =====================================================
 
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=5)
 def load_data():
 
-    try:
+    data = sheet.get_all_records()
 
-        sheet = connect_sheet()
+    if len(data) == 0:
+        return pd.DataFrame(
+            columns=[
+                "Kategori",
+                "Submenu",
+                "NamaTemplate",
+                "IsiTemplate"
+            ]
+        )
 
-        data = sheet.get_all_records()
-
-        if not data:
-            return pd.DataFrame(
-                columns=[
-                    "Kategori",
-                    "Submenu",
-                    "NamaTemplate",
-                    "IsiTemplate"
-                ]
-            )
-
-        return pd.DataFrame(data)
-
-    except Exception as e:
-
-        st.error(f"Gagal membaca Google Sheet: {e}")
-
-        return pd.DataFrame()
+    return pd.DataFrame(data)
 
 # =====================================================
-# HEADER
+# SIDEBAR
 # =====================================================
 
-st.title("📚 Template BO")
+st.sidebar.title("📚 TEMPLATE BO")
 
-st.caption("Template otomatis dari Google Sheets")
-
-# =====================================================
-# LOAD
-# =====================================================
-
-df = load_data()
-
-if df.empty:
-    st.stop()
-
-# =====================================================
-# SEARCH
-# =====================================================
-
-search = st.text_input(
-    "🔍 Cari Template"
+menu = st.sidebar.radio(
+    "Menu",
+    [
+        "Lihat Template",
+        "Kelola Template"
+    ]
 )
 
-if search:
-
-    mask = df.astype(str).apply(
-        lambda x: x.str.contains(
-            search,
-            case=False,
-            na=False
-        )
-    ).any(axis=1)
-
-    df = df[mask]
-
 # =====================================================
-# VALIDASI
+# VIEW TEMPLATE
 # =====================================================
 
-if len(df) == 0:
+if menu == "Lihat Template":
 
-    st.warning(
-        "Template tidak ditemukan."
+    df = load_data()
+
+    st.title("📚 Template BO")
+
+    search = st.text_input(
+        "🔍 Cari Template"
     )
 
-    st.stop()
+    if search:
+
+        df = df[
+            df.astype(str)
+            .apply(
+                lambda x: x.str.contains(
+                    search,
+                    case=False,
+                    na=False
+                )
+            )
+            .any(axis=1)
+        ]
+
+    kategori_list = sorted(
+        df["Kategori"].dropna().unique().tolist()
+    )
+
+    if len(kategori_list) == 0:
+        st.warning("Belum ada data.")
+        st.stop()
+
+    kategori = st.selectbox(
+        "Kategori",
+        kategori_list
+    )
+
+    df_kategori = df[
+        df["Kategori"] == kategori
+    ]
+
+    submenu_list = sorted(
+        df_kategori["Submenu"]
+        .dropna()
+        .unique()
+        .tolist()
+    )
+
+    submenu = st.selectbox(
+        "Submenu",
+        submenu_list
+    )
+
+    df_submenu = df_kategori[
+        df_kategori["Submenu"] == submenu
+    ]
+
+    template_list = sorted(
+        df_submenu["NamaTemplate"]
+        .dropna()
+        .tolist()
+    )
+
+    template = st.selectbox(
+        "Template",
+        template_list
+    )
+
+    row = df_submenu[
+        df_submenu["NamaTemplate"] == template
+    ].iloc[0]
+
+    isi = row["IsiTemplate"]
+
+    st.subheader(template)
+
+    st.text_area(
+        "Isi Template",
+        isi,
+        height=250
+    )
+
+    st.code(isi)
 
 # =====================================================
-# FILTER KATEGORI
+# MANAGE TEMPLATE
 # =====================================================
 
-kategori_list = sorted(
-    df["Kategori"]
-    .dropna()
-    .unique()
-    .tolist()
-)
+if menu == "Kelola Template":
 
-kategori = st.selectbox(
-    "Kategori",
-    kategori_list
-)
+    st.title("⚙️ Kelola Template")
 
-df_kategori = df[
-    df["Kategori"] == kategori
-]
+    df = load_data()
 
-# =====================================================
-# FILTER SUBMENU
-# =====================================================
+    edited_df = st.data_editor(
+        df,
+        use_container_width=True,
+        num_rows="dynamic",
+        hide_index=True
+    )
 
-submenu_list = sorted(
-    df_kategori["Submenu"]
-    .dropna()
-    .unique()
-    .tolist()
-)
+    col1, col2 = st.columns(2)
 
-submenu = st.selectbox(
-    "Submenu",
-    submenu_list
-)
+    with col1:
 
-df_submenu = df_kategori[
-    df_kategori["Submenu"] == submenu
-]
+        if st.button(
+            "💾 Simpan Perubahan",
+            use_container_width=True
+        ):
 
-# =====================================================
-# FILTER TEMPLATE
-# =====================================================
+            sheet.clear()
 
-template_list = sorted(
-    df_submenu["NamaTemplate"]
-    .dropna()
-    .tolist()
-)
+            sheet.update(
+                [
+                    edited_df.columns.tolist()
+                ]
+                +
+                edited_df.values.tolist()
+            )
 
-template = st.selectbox(
-    "Template",
-    template_list
-)
+            st.cache_data.clear()
 
-row = df_submenu[
-    df_submenu["NamaTemplate"] == template
-].iloc[0]
+            st.success(
+                "Data berhasil disimpan ke Google Sheets"
+            )
 
-isi_template = str(row["IsiTemplate"])
+            st.rerun()
 
-# =====================================================
-# TAMPILKAN TEMPLATE
-# =====================================================
+    with col2:
 
-st.divider()
+        if st.button(
+            "🔄 Refresh",
+            use_container_width=True
+        ):
 
-st.header(template)
+            st.cache_data.clear()
+            st.rerun()
 
-edited_text = st.text_area(
-    "Isi Template",
-    value=isi_template,
-    height=300
-)
+    st.info(
+        """
+        Cara penggunaan:
 
-# =====================================================
-# COPY BUTTON
-# =====================================================
+        ➕ Tambah template = tambah baris baru
 
-copy_html = f"""
-<textarea id="copyText" style="display:none;">{edited_text}</textarea>
+        ✏️ Edit template = ubah langsung pada tabel
 
-<button
-class="copy-btn"
-onclick="
-navigator.clipboard.writeText(
-document.getElementById('copyText').value
-);
-alert('Template berhasil dicopy');
-">
-📋 Copy Template
-</button>
-"""
+        🗑️ Hapus template = hapus baris
 
-components.html(
-    copy_html,
-    height=60
-)
-
-# =====================================================
-# FOOTER
-# =====================================================
-
-st.divider()
-
-st.caption(
-    "Template BO - Data sumber Google Sheets"
-)
+        💾 Simpan Perubahan = simpan ke Google Sheets
+        """
+    )
