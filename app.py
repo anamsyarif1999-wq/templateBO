@@ -50,6 +50,7 @@ def connect_sheet():
 
     return worksheet
 
+
 sheet = connect_sheet()
 
 # =====================================================
@@ -79,14 +80,16 @@ def load_data():
 
 def copy_button(label, text):
 
+    text = str(text).replace("`", "\\`")
+
     html = f"""
     <button
         onclick="
-        navigator.clipboard.writeText(`{text}`);
-        this.innerHTML='✅ Tersalin';
-        setTimeout(() => {{
-            this.innerHTML='{label}';
-        }}, 1500);
+            navigator.clipboard.writeText(`{text}`);
+            this.innerHTML='✅ Tersalin';
+            setTimeout(() => {{
+                this.innerHTML='{label}';
+            }}, 1500);
         "
         style="
             background:#16a34a;
@@ -147,19 +150,20 @@ if menu == "Lihat Template":
 
     if search.strip():
 
+        kode = search.strip().upper()
+
         hasil = df[
             df["NamaTemplate"]
             .astype(str)
             .str.strip()
             .str.upper()
-            ==
-            search.strip().upper()
+            == kode
         ]
 
-        if hasil.empty():
+        if hasil.empty:
 
             st.warning(
-                "Kode template tidak ditemukan."
+                f"Kode template '{kode}' tidak ditemukan."
             )
 
             st.stop()
@@ -215,7 +219,10 @@ if menu == "Lihat Template":
         )
 
         row = df_submenu[
-            df_submenu["NamaTemplate"] == template
+            df_submenu["NamaTemplate"]
+            .astype(str)
+            .str.strip()
+            == template
         ].iloc[0]
 
     isi = str(row["IsiTemplate"])
@@ -331,9 +338,7 @@ if menu == "Kelola Template":
 
                 sheet.clear()
 
-                sheet.update(
-                    data_save
-                )
+                sheet.update(data_save)
 
                 st.cache_data.clear()
 
@@ -368,5 +373,5 @@ if menu == "Kelola Template":
 🗑️ Hapus Template = Hapus baris
 
 💾 Simpan Perubahan = Simpan ke Google Sheets
-"""
+        """
     )
