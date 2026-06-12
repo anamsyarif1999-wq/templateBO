@@ -22,7 +22,38 @@ SPREADSHEET_ID = "1vhdIpJ9esIMPVuGRbvU4uU6qCrTQ8D8bpLOA_vH3yhg"
 WORKSHEET_NAME = "Template"
 
 # =====================================================
-# CONNECT GOOGLE SHEET
+# CSS
+# =====================================================
+
+st.markdown("""
+<style>
+
+.main {
+    padding-top: 1rem;
+}
+
+.block-container {
+    max-width: 1400px;
+}
+
+.copy-btn {
+    background-color: #16a34a;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.copy-btn:hover {
+    background-color: #15803d;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# =====================================================
+# GOOGLE SHEET CONNECTION
 # =====================================================
 
 @st.cache_resource
@@ -50,7 +81,6 @@ def connect_sheet():
 
     return worksheet
 
-
 # =====================================================
 # LOAD DATA
 # =====================================================
@@ -58,22 +88,29 @@ def connect_sheet():
 @st.cache_data(ttl=60)
 def load_data():
 
-    sheet = connect_sheet()
+    try:
 
-    data = sheet.get_all_records()
+        sheet = connect_sheet()
 
-    if not data:
-        return pd.DataFrame(
-            columns=[
-                "Kategori",
-                "Submenu",
-                "NamaTemplate",
-                "IsiTemplate"
-            ]
-        )
+        data = sheet.get_all_records()
 
-    return pd.DataFrame(data)
+        if not data:
+            return pd.DataFrame(
+                columns=[
+                    "Kategori",
+                    "Submenu",
+                    "NamaTemplate",
+                    "IsiTemplate"
+                ]
+            )
 
+        return pd.DataFrame(data)
+
+    except Exception as e:
+
+        st.error(f"Gagal membaca Google Sheet: {e}")
+
+        return pd.DataFrame()
 
 # =====================================================
 # HEADER
@@ -81,7 +118,16 @@ def load_data():
 
 st.title("📚 Template BO")
 
+st.caption("Template otomatis dari Google Sheets")
+
+# =====================================================
+# LOAD
+# =====================================================
+
 df = load_data()
+
+if df.empty:
+    st.stop()
 
 # =====================================================
 # SEARCH
@@ -104,7 +150,7 @@ if search:
     df = df[mask]
 
 # =====================================================
-# VALIDASI DATA
+# VALIDASI
 # =====================================================
 
 if len(df) == 0:
@@ -116,7 +162,7 @@ if len(df) == 0:
     st.stop()
 
 # =====================================================
-# KATEGORI
+# FILTER KATEGORI
 # =====================================================
 
 kategori_list = sorted(
@@ -136,7 +182,7 @@ df_kategori = df[
 ]
 
 # =====================================================
-# SUBMENU
+# FILTER SUBMENU
 # =====================================================
 
 submenu_list = sorted(
@@ -156,7 +202,7 @@ df_submenu = df_kategori[
 ]
 
 # =====================================================
-# TEMPLATE
+# FILTER TEMPLATE
 # =====================================================
 
 template_list = sorted(
@@ -174,7 +220,7 @@ row = df_submenu[
     df_submenu["NamaTemplate"] == template
 ].iloc[0]
 
-isi_template = row["IsiTemplate"]
+isi_template = str(row["IsiTemplate"])
 
 # =====================================================
 # TAMPILKAN TEMPLATE
@@ -187,7 +233,7 @@ st.header(template)
 edited_text = st.text_area(
     "Isi Template",
     value=isi_template,
-    height=350
+    height=300
 )
 
 # =====================================================
@@ -195,38 +241,30 @@ edited_text = st.text_area(
 # =====================================================
 
 copy_html = f"""
-<div style="margin-top:10px;">
-<textarea id="copytext" style="display:none;">{edited_text}</textarea>
+<textarea id="copyText" style="display:none;">{edited_text}</textarea>
 
 <button
-style="
-background:#16a34a;
-color:white;
-border:none;
-padding:10px 20px;
-border-radius:8px;
-cursor:pointer;
-font-weight:bold;
-"
+class="copy-btn"
 onclick="
 navigator.clipboard.writeText(
-document.getElementById('copytext').value
+document.getElementById('copyText').value
 );
 alert('Template berhasil dicopy');
 ">
 📋 Copy Template
 </button>
-</div>
 """
 
 components.html(
     copy_html,
-    height=70
+    height=60
 )
 
 # =====================================================
 # FOOTER
 # =====================================================
+
+st.divider()
 
 st.caption(
     "Template BO - Data sumber Google Sheets"
