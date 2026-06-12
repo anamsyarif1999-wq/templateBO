@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
+import streamlit.components.v1 as components
 
 # =====================================================
 # CONFIG
@@ -21,7 +22,7 @@ SPREADSHEET_ID = "1vhdIpJ9esIMPVuGRbvU4uU6qCrTQ8D8bpLOA_vH3yhg"
 WORKSHEET_NAME = "Template"
 
 # =====================================================
-# CONNECT
+# CONNECT GOOGLE SHEET
 # =====================================================
 
 @st.cache_resource
@@ -49,19 +50,19 @@ def connect_sheet():
 
     return worksheet
 
-sheet = connect_sheet()
 
 # =====================================================
 # LOAD DATA
 # =====================================================
 
-@st.cache_data(ttl=5)
+@st.cache_data(ttl=60)
 def load_data():
+
+    sheet = connect_sheet()
 
     data = sheet.get_all_records()
 
-    if len(data) == 0:
-
+    if not data:
         return pd.DataFrame(
             columns=[
                 "Kategori",
@@ -73,268 +74,160 @@ def load_data():
 
     return pd.DataFrame(data)
 
+
 # =====================================================
-# SAVE DATA
+# HEADER
 # =====================================================
 
-def save_dataframe(df):
+st.title("📚 Template BO")
 
-    sheet.clear()
+df = load_data()
 
-    sheet.update(
-        [df.columns.tolist()]
-        +
-        df.fillna("").values.tolist()
+# =====================================================
+# SEARCH
+# =====================================================
+
+search = st.text_input(
+    "🔍 Cari Template"
+)
+
+if search:
+
+    mask = df.astype(str).apply(
+        lambda x: x.str.contains(
+            search,
+            case=False,
+            na=False
+        )
+    ).any(axis=1)
+
+    df = df[mask]
+
+# =====================================================
+# VALIDASI DATA
+# =====================================================
+
+if len(df) == 0:
+
+    st.warning(
+        "Template tidak ditemukan."
     )
 
-    st.cache_data.clear()
+    st.stop()
 
 # =====================================================
-# SIDEBAR
+# KATEGORI
 # =====================================================
 
-st.sidebar.title("📚 TEMPLATE BO")
+kategori_list = sorted(
+    df["Kategori"]
+    .dropna()
+    .unique()
+    .tolist()
+)
 
-menu = st.sidebar.radio(
-    "Menu",
-    [
-        "Lihat Template",
-        "Kelola Template"
-    ]
+kategori = st.selectbox(
+    "Kategori",
+    kategori_list
+)
+
+df_kategori = df[
+    df["Kategori"] == kategori
+]
+
+# =====================================================
+# SUBMENU
+# =====================================================
+
+submenu_list = sorted(
+    df_kategori["Submenu"]
+    .dropna()
+    .unique()
+    .tolist()
+)
+
+submenu = st.selectbox(
+    "Submenu",
+    submenu_list
+)
+
+df_submenu = df_kategori[
+    df_kategori["Submenu"] == submenu
+]
+
+# =====================================================
+# TEMPLATE
+# =====================================================
+
+template_list = sorted(
+    df_submenu["NamaTemplate"]
+    .dropna()
+    .tolist()
+)
+
+template = st.selectbox(
+    "Template",
+    template_list
+)
+
+row = df_submenu[
+    df_submenu["NamaTemplate"] == template
+].iloc[0]
+
+isi_template = row["IsiTemplate"]
+
+# =====================================================
+# TAMPILKAN TEMPLATE
+# =====================================================
+
+st.divider()
+
+st.header(template)
+
+edited_text = st.text_area(
+    "Isi Template",
+    value=isi_template,
+    height=350
 )
 
 # =====================================================
-# LIHAT TEMPLATE
+# COPY BUTTON
 # =====================================================
 
-if menu == "Lihat Template":
+copy_html = f"""
+<div style="margin-top:10px;">
+<textarea id="copytext" style="display:none;">{edited_text}</textarea>
 
-    df = load_data()
+<button
+style="
+background:#16a34a;
+color:white;
+border:none;
+padding:10px 20px;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+"
+onclick="
+navigator.clipboard.writeText(
+document.getElementById('copytext').value
+);
+alert('Template berhasil dicopy');
+">
+📋 Copy Template
+</button>
+</div>
+"""
 
-    st.title("📚 Template BO")
-
-    search = st.text_input(
-        "🔍 Cari Template"
-    )
-
-    if search:
-
-        mask = df.astype(str).apply(
-            lambda x:
-            x.str.contains(
-                search,
-                case=False,
-                na=False
-            )
-        ).any(axis=1)
-
-        df = df[mask]
-
-    if len(df) == 0:
-
-        st.warning(
-            "Template tidak ditemukan."
-        )
-
-        st.stop()
-
-    kategori_list = sorted(
-        df["Kategori"]
-        .dropna()
-        .unique()
-        .tolist()
-    )
-
-    kategori = st.selectbox(
-        "Kategori",
-        kategori_list
-    )
-
-    df1 = df[
-        df["Kategori"] == kategori
-    ]
-
-    submenu_list = sorted(
-        df1["Submenu"]
-        .dropna()
-        .unique()
-        .tolist()
-    )
-
-    submenu = st.selectbox(
-        "Submenu",
-        submenu_list
-    )
-
-    df2 = df1[
-        df1["Submenu"] == submenu
-    ]
-
-    template_list = sorted(
-        df2["NamaTemplate"]
-        .tolist()
-    )
-
-    template = st.selectbox(
-        "Template",
-        template_list
-    )
-
-    row = df2[
-        df2["NamaTemplate"] == template
-    ].iloc[0]
-
-    isi = row["IsiTemplate"]
-
-    st.markdown("---")
-
-    st.subheader(template)
-
-    st.text_area(
-        "Isi Template",
-        value=isi,
-        height=300,
-        disabled=True
-    )
-
-    st.download_button(
-        "📥 Download TXT",
-        isi,
-        file_name=f"{template}.txt"
-    )
+components.html(
+    copy_html,
+    height=70
+)
 
 # =====================================================
-# KELOLA TEMPLATE
+# FOOTER
 # =====================================================
 
-if menu == "Kelola Template":
-
-    st.title("⚙️ Kelola Template")
-
-    df = load_data()
-
-    tab1, tab2 = st.tabs(
-        [
-            "Tambah Template",
-            "Edit Data"
-        ]
-    )
-
-    # ==========================================
-    # TAB TAMBAH
-    # ==========================================
-
-    with tab1:
-
-        kategori = st.text_input(
-            "Kategori"
-        )
-
-        submenu = st.text_input(
-            "Submenu"
-        )
-
-        nama = st.text_input(
-            "Nama Template"
-        )
-
-        isi = st.text_area(
-            "Isi Template",
-            height=250
-        )
-
-        if st.button(
-            "➕ Tambah Template"
-        ):
-
-            if (
-                kategori
-                and submenu
-                and nama
-                and isi
-            ):
-
-                new_row = pd.DataFrame([
-                    {
-                        "Kategori": kategori,
-                        "Submenu": submenu,
-                        "NamaTemplate": nama,
-                        "IsiTemplate": isi
-                    }
-                ])
-
-                df = pd.concat(
-                    [df, new_row],
-                    ignore_index=True
-                )
-
-                save_dataframe(df)
-
-                st.success(
-                    "Template berhasil ditambahkan"
-                )
-
-                st.rerun()
-
-            else:
-
-                st.warning(
-                    "Lengkapi semua data."
-                )
-
-    # ==========================================
-    # TAB EDIT
-    # ==========================================
-
-    with tab2:
-
-        edited_df = st.data_editor(
-            df,
-            use_container_width=True,
-            num_rows="dynamic",
-            hide_index=True
-        )
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-
-            if st.button(
-                "💾 Simpan Perubahan",
-                use_container_width=True
-            ):
-
-                save_dataframe(
-                    edited_df
-                )
-
-                st.success(
-                    "Perubahan berhasil disimpan"
-                )
-
-                st.rerun()
-
-        with col2:
-
-            if st.button(
-                "🔄 Refresh",
-                use_container_width=True
-            ):
-
-                st.cache_data.clear()
-
-                st.rerun()
-
-        st.info(
-            """
-            Cara penggunaan:
-
-            ➕ Tambah baris = tambah template
-
-            ✏️ Edit langsung di tabel
-
-            🗑️ Hapus baris = hapus template
-
-            💾 Simpan Perubahan untuk menyimpan ke Google Sheets
-            """
-        )
+st.caption(
+    "Template BO - Data sumber Google Sheets"
+)
