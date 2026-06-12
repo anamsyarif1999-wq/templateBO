@@ -15,7 +15,7 @@ st.set_page_config(
 )
 
 # =====================================================
-# GOOGLE SHEETS
+# GOOGLE SHEET
 # =====================================================
 
 SPREADSHEET_ID = "1vhdIpJ9esIMPVuGRbvU4uU6qCrTQ8D8bpLOA_vH3yhg"
@@ -80,24 +80,32 @@ def load_data():
 def copy_button(label, text):
 
     html = f"""
-    <button onclick="
-    navigator.clipboard.writeText(`{text}`);
-    alert('Berhasil dicopy');
-    "
-    style="
-    background:#16a34a;
-    color:white;
-    border:none;
-    padding:10px 15px;
-    border-radius:8px;
-    cursor:pointer;
-    width:100%;
-    ">
-    {label}
+    <button
+        onclick="
+        navigator.clipboard.writeText(`{text}`);
+        this.innerHTML='✅ Tersalin';
+        setTimeout(() => {{
+            this.innerHTML='{label}';
+        }}, 1500);
+        "
+        style="
+            background:#16a34a;
+            color:white;
+            border:none;
+            border-radius:8px;
+            padding:10px;
+            width:100%;
+            cursor:pointer;
+            font-weight:bold;
+        ">
+        {label}
     </button>
     """
 
-    components.html(html, height=50)
+    components.html(
+        html,
+        height=55
+    )
 
 # =====================================================
 # SIDEBAR
@@ -127,9 +135,9 @@ if menu == "Lihat Template":
         st.warning("Belum ada data template.")
         st.stop()
 
-    # =================================================
+    # ============================================
     # SEARCH
-    # =================================================
+    # ============================================
 
     search = st.text_input(
         "🔍 Cari Kode Template"
@@ -148,15 +156,15 @@ if menu == "Lihat Template":
             search.strip().upper()
         ]
 
-        if hasil.empty:
+        if hasil.empty():
 
             st.warning(
                 "Kode template tidak ditemukan."
             )
 
-        else:
+            st.stop()
 
-            row = hasil.iloc[0]
+        row = hasil.iloc[0]
 
     else:
 
@@ -210,76 +218,78 @@ if menu == "Lihat Template":
             df_submenu["NamaTemplate"] == template
         ].iloc[0]
 
-    # =================================================
-    # TAMPILKAN TEMPLATE
-    # =================================================
+    isi = str(row["IsiTemplate"])
 
-    if row is not None:
+    st.divider()
 
-        isi = str(row["IsiTemplate"])
+    st.subheader(
+        str(row["NamaTemplate"])
+    )
 
-        st.divider()
+    st.text_area(
+        "Isi Template",
+        value=isi,
+        height=250
+    )
 
-        st.subheader(
-            str(row["NamaTemplate"])
-        )
+    # ============================================
+    # COPY TEMPLATE
+    # ============================================
 
-        st.text_area(
-            "Isi Template",
-            value=isi,
-            height=250
-        )
+    st.markdown("### 📋 Copy Template")
 
-        st.markdown("### 📋 Copy Template")
+    copy_button(
+        "📋 COPY TEMPLATE",
+        isi
+    )
 
+    st.divider()
+
+    # ============================================
+    # TEMPLATE CEPAT
+    # ============================================
+
+    st.markdown("### ⚡ Template Cepat")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
         copy_button(
-            "📋 COPY TEMPLATE",
-            isi
+            "UNISOLIR",
+            "UNISOLIR"
         )
 
-        st.divider()
+    with col2:
+        copy_button(
+            "ISOLIR",
+            "ISOLIR"
+        )
 
-        st.markdown("### ⚡ Template Cepat")
+    with col3:
+        copy_button(
+            "MASIH PERIODE",
+            "MASIH PERIODE PENGGUNAAN"
+        )
 
-        c1, c2, c3 = st.columns(3)
+    col4, col5, col6 = st.columns(3)
 
-        with c1:
-            copy_button(
-                "UNISOLIR",
-                "UNISOLIR"
-            )
+    with col4:
+        copy_button(
+            "MUTASI 1",
+            "Dikarenakan ada ketidaksesuaian dalam pemilihan Jenis Komplain dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
+        )
 
-        with c2:
-            copy_button(
-                "ISOLIR",
-                "ISOLIR"
-            )
+    with col5:
+        copy_button(
+            "MUTASI 2",
+            "Dikarenakan ada ketidaksesuaian dalam pemilihan Jenis Tiket dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
+        )
 
-        with c3:
-            copy_button(
-                "MASIH PERIODE",
-                "MASIH PERIODE PENGGUNAAN"
-            )
-
-        c4, c5, c6 = st.columns(3)
-
-        with c4:
-            copy_button(
-                "MUTASI 1",
-                "Dikarenakan ada ketidaksesuaian dalam pemilihan Jenis Komplain dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
-            )
-
-        with c5:
-            copy_button(
-                "MUTASI 2",
-                "Dikarenakan ada ketidaksesuaian dalam pemilihan Jenis Tiket dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
-            )
-
-        with c6:
-            copy_button(
-                "MUTASI 3",
-                "Dikarenakan ada ketidaksesuaian dalam pemilihan Posisi Tiket Komplain dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
-            )
+    with col6:
+        copy_button(
+            "MUTASI 3",
+            "Dikarenakan ada ketidaksesuaian dalam pemilihan Posisi Tiket Komplain dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
+        )
 
 # =====================================================
 # KELOLA TEMPLATE
@@ -321,12 +331,14 @@ if menu == "Kelola Template":
 
                 sheet.clear()
 
-                sheet.update(data_save)
+                sheet.update(
+                    data_save
+                )
 
                 st.cache_data.clear()
 
                 st.success(
-                    "Data berhasil disimpan"
+                    "Data berhasil disimpan."
                 )
 
                 st.rerun()
@@ -334,7 +346,7 @@ if menu == "Kelola Template":
             except Exception as e:
 
                 st.error(
-                    f"Gagal menyimpan data: {e}"
+                    f"Gagal menyimpan data : {e}"
                 )
 
     with col2:
