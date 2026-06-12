@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
+import streamlit.components.v1 as components
 
 # =====================================================
 # CONFIG
@@ -14,11 +15,15 @@ st.set_page_config(
 )
 
 # =====================================================
-# GOOGLE SHEETS CONNECTION
+# GOOGLE SHEETS
 # =====================================================
 
 SPREADSHEET_ID = "1vhdIpJ9esIMPVuGRbvU4uU6qCrTQ8D8bpLOA_vH3yhg"
 WORKSHEET_NAME = "Template"
+
+# =====================================================
+# CONNECT SHEET
+# =====================================================
 
 @st.cache_resource
 def connect_sheet():
@@ -45,7 +50,6 @@ def connect_sheet():
 
     return worksheet
 
-
 sheet = connect_sheet()
 
 # =====================================================
@@ -68,6 +72,32 @@ def load_data():
         )
 
     return pd.DataFrame(data)
+
+# =====================================================
+# COPY BUTTON
+# =====================================================
+
+def copy_button(label, text):
+
+    html = f"""
+    <button onclick="
+    navigator.clipboard.writeText(`{text}`);
+    alert('Berhasil dicopy');
+    "
+    style="
+    background:#16a34a;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:8px;
+    cursor:pointer;
+    width:100%;
+    ">
+    {label}
+    </button>
+    """
+
+    components.html(html, height=50)
 
 # =====================================================
 # SIDEBAR
@@ -98,16 +128,14 @@ if menu == "Lihat Template":
         st.stop()
 
     # =================================================
-    # SEARCH TEMPLATE
+    # SEARCH
     # =================================================
 
     search = st.text_input(
         "🔍 Cari Kode Template"
     )
 
-    # =================================================
-    # MODE SEARCH
-    # =================================================
+    row = None
 
     if search.strip():
 
@@ -115,20 +143,80 @@ if menu == "Lihat Template":
             df["NamaTemplate"]
             .astype(str)
             .str.strip()
-            .str.contains(
-                search.strip(),
-                case=False,
-                na=False
-            )
+            .str.upper()
+            ==
+            search.strip().upper()
         ]
 
         if hasil.empty:
+
             st.warning(
                 "Kode template tidak ditemukan."
             )
-            st.stop()
 
-        row = hasil.iloc[0]
+        else:
+
+            row = hasil.iloc[0]
+
+    else:
+
+        kategori_list = sorted(
+            df["Kategori"]
+            .dropna()
+            .astype(str)
+            .unique()
+            .tolist()
+        )
+
+        kategori = st.selectbox(
+            "Kategori",
+            kategori_list
+        )
+
+        df_kategori = df[
+            df["Kategori"] == kategori
+        ]
+
+        submenu_list = sorted(
+            df_kategori["Submenu"]
+            .dropna()
+            .astype(str)
+            .unique()
+            .tolist()
+        )
+
+        submenu = st.selectbox(
+            "Submenu",
+            submenu_list
+        )
+
+        df_submenu = df_kategori[
+            df_kategori["Submenu"] == submenu
+        ]
+
+        template_list = sorted(
+            df_submenu["NamaTemplate"]
+            .dropna()
+            .astype(str)
+            .tolist()
+        )
+
+        template = st.selectbox(
+            "Template",
+            template_list
+        )
+
+        row = df_submenu[
+            df_submenu["NamaTemplate"] == template
+        ].iloc[0]
+
+    # =================================================
+    # TAMPILKAN TEMPLATE
+    # =================================================
+
+    if row is not None:
+
+        isi = str(row["IsiTemplate"])
 
         st.divider()
 
@@ -138,77 +226,60 @@ if menu == "Lihat Template":
 
         st.text_area(
             "Isi Template",
-            value=str(row["IsiTemplate"]),
-            height=300
+            value=isi,
+            height=250
         )
 
-        st.stop()
+        st.markdown("### 📋 Copy Template")
 
-    # =================================================
-    # MODE DROPDOWN
-    # =================================================
+        copy_button(
+            "📋 COPY TEMPLATE",
+            isi
+        )
 
-    kategori_list = sorted(
-        df["Kategori"]
-        .dropna()
-        .astype(str)
-        .unique()
-        .tolist()
-    )
+        st.divider()
 
-    kategori = st.selectbox(
-        "Kategori",
-        kategori_list
-    )
+        st.markdown("### ⚡ Template Cepat")
 
-    df_kategori = df[
-        df["Kategori"] == kategori
-    ]
+        c1, c2, c3 = st.columns(3)
 
-    submenu_list = sorted(
-        df_kategori["Submenu"]
-        .dropna()
-        .astype(str)
-        .unique()
-        .tolist()
-    )
+        with c1:
+            copy_button(
+                "UNISOLIR",
+                "UNISOLIR"
+            )
 
-    submenu = st.selectbox(
-        "Submenu",
-        submenu_list
-    )
+        with c2:
+            copy_button(
+                "ISOLIR",
+                "ISOLIR"
+            )
 
-    df_submenu = df_kategori[
-        df_kategori["Submenu"] == submenu
-    ]
+        with c3:
+            copy_button(
+                "MASIH PERIODE",
+                "MASIH PERIODE PENGGUNAAN"
+            )
 
-    template_list = sorted(
-        df_submenu["NamaTemplate"]
-        .dropna()
-        .astype(str)
-        .tolist()
-    )
+        c4, c5, c6 = st.columns(3)
 
-    template = st.selectbox(
-        "Template",
-        template_list
-    )
+        with c4:
+            copy_button(
+                "MUTASI 1",
+                "Dikarenakan ada ketidaksesuaian dalam pemilihan Jenis Komplain dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
+            )
 
-    row = df_submenu[
-        df_submenu["NamaTemplate"] == template
-    ].iloc[0]
+        with c5:
+            copy_button(
+                "MUTASI 2",
+                "Dikarenakan ada ketidaksesuaian dalam pemilihan Jenis Tiket dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
+            )
 
-    st.divider()
-
-    st.subheader(
-        str(row["NamaTemplate"])
-    )
-
-    st.text_area(
-        "Isi Template",
-        value=str(row["IsiTemplate"]),
-        height=300
-    )
+        with c6:
+            copy_button(
+                "MUTASI 3",
+                "Dikarenakan ada ketidaksesuaian dalam pemilihan Posisi Tiket Komplain dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
+            )
 
 # =====================================================
 # KELOLA TEMPLATE
@@ -240,24 +311,22 @@ if menu == "Kelola Template":
 
                 edited_df = edited_df.fillna("")
 
-                data_to_save = [
+                data_save = [
                     edited_df.columns.tolist()
                 ]
 
-                data_to_save.extend(
+                data_save.extend(
                     edited_df.values.tolist()
                 )
 
                 sheet.clear()
 
-                sheet.update(
-                    data_to_save
-                )
+                sheet.update(data_save)
 
                 st.cache_data.clear()
 
                 st.success(
-                    "Data berhasil disimpan ke Google Sheets."
+                    "Data berhasil disimpan"
                 )
 
                 st.rerun()
@@ -280,12 +349,12 @@ if menu == "Kelola Template":
 
     st.info(
         """
-➕ Tambah template = tambah baris baru
+➕ Tambah Template = Tambah baris baru
 
-✏️ Edit template = ubah langsung pada tabel
+✏️ Edit Template = Ubah langsung pada tabel
 
-🗑️ Hapus template = hapus baris
+🗑️ Hapus Template = Hapus baris
 
-💾 Simpan Perubahan = simpan ke Google Sheets
+💾 Simpan Perubahan = Simpan ke Google Sheets
 """
     )
