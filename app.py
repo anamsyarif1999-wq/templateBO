@@ -1,121 +1,234 @@
 import streamlit as st
-import json
-from pathlib import Path
+import pandas as pd
+import gspread
+from google.oauth2.service_account import Credentials
 
-DATA_FILE = "templates.json"
+# =====================================================
+# CONFIG
+# =====================================================
 
-st.set_page_config(page_title="Template BO", layout="wide")
+st.set_page_config(
+    page_title="Template BO",
+    page_icon="📚",
+    layout="wide"
+)
 
+# =====================================================
+# GOOGLE SHEETS CONNECTION
+# =====================================================
+
+@st.cache_resource
+def connect_sheet():
+
+    scope = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive"
+    ]
+
+    creds = Credentials.from_service_account_info(
+        st.secrets["gcp_service_account"],
+        scopes=scope
+    )
+
+    client = gspread.authorize(creds)
+
+    spreadsheet = client.open_by_key(
+        "1vhdIpJ9esIMPVuGRbvU4uU6qCrTQ8D8bpLOA_vH3yhg"
+    )
+
+    worksheet = spreadsheet.worksheet("Template")
+
+    return worksheet
+
+sheet = connect_sheet()
+
+# =====================================================
+# LOAD DATA
+# =====================================================
+
+@st.cache_data(ttl=5)
 def load_data():
-    if Path(DATA_FILE).exists():
-        with open(DATA_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {"Gangguan": {}, "Keluhan": {}}
 
-def save_data(data):
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    data = sheet.get_all_records()
 
-data = load_data()
+    if len(data) == 0:
+        return pd.DataFrame(
+            columns=[
+                "Kategori",
+                "Submenu",
+                "NamaTemplate",
+                "IsiTemplate"
+            ]
+        )
+
+    return pd.DataFrame(data)
+
+# =====================================================
+# SIDEBAR
+# =====================================================
 
 st.sidebar.title("📚 TEMPLATE BO")
 
 menu = st.sidebar.radio(
     "Menu",
-    ["Lihat Template", "Kelola Template"]
+    [
+        "Lihat Template",
+        "Kelola Template"
+    ]
 )
 
+# =====================================================
+# VIEW TEMPLATE
+# =====================================================
+
 if menu == "Lihat Template":
-    kategori = st.selectbox("Kategori", list(data.keys()))
 
-    if data[kategori]:
-        submenu = st.selectbox("Submenu", list(data[kategori].keys()))
+    df = load_data()
 
-        if data[kategori][submenu]:
-            nama_template = st.selectbox(
-                "Template",
-                list(data[kategori][submenu].keys())
-            )
+    st.title("📚 Template BO")
 
-            isi = data[kategori][submenu][nama_template]
-
-            st.subheader(nama_template)
-            st.text_area("Isi Template", value=isi, height=250)
-
-            st.code(isi)
-
-    else:
-        st.warning("Belum ada template.")
-
-else:
-    st.header("⚙️ Kelola Template")
-
-    aksi = st.radio(
-        "Pilih Aksi",
-        ["Tambah", "Edit", "Hapus"]
+    search = st.text_input(
+        "🔍 Cari Template"
     )
 
-    if aksi == "Tambah":
-        kategori = st.selectbox(
-            "Kategori",
-            ["Gangguan", "Keluhan"]
-        )
+    if search:
 
-        submenu = st.text_input("Nama Submenu")
-        nama_template = st.text_input("Nama Template")
-        isi_template = st.text_area("Isi Template", height=200)
+        df = df[
+            df.astype(str)
+            .apply(
+                lambda x: x.str.contains(
+                    search,
+                    case=False,
+                    na=False
+                )
+            )
+            .any(axis=1)
+        ]
 
-        if st.button("💾 Simpan"):
-            data.setdefault(kategori, {})
-            data[kategori].setdefault(submenu, {})
-            data[kategori][submenu][nama_template] = isi_template
-            save_data(data)
-            st.success("Template berhasil disimpan.")
+    kategori_list = sorted(
+        df["Kategori"].dropna().unique().tolist()
+    )
 
-    elif aksi == "Edit":
-        kategori = st.selectbox("Kategori", list(data.keys()))
+    if len(kategori_list) == 0:
+        st.warning("Belum ada data.")
+        st.stop()
 
-        if data[kategori]:
-            submenu = st.selectbox(
-                "Submenu",
-                list(data[kategori].keys())
+    kategori = st.selectbox(
+        "Kategori",
+        kategori_list
+    )
+
+    df_kategori = df[
+        df["Kategori"] == kategori
+    ]
+
+    submenu_list = sorted(
+        df_kategori["Submenu"]
+        .dropna()
+        .unique()
+        .tolist()
+    )
+
+    submenu = st.selectbox(
+        "Submenu",
+        submenu_list
+    )
+
+    df_submenu = df_kategori[
+        df_kategori["Submenu"] == submenu
+    ]
+
+    template_list = sorted(
+        df_submenu["NamaTemplate"]
+        .dropna()
+        .tolist()
+    )
+
+    template = st.selectbox(
+        "Template",
+        template_list
+    )
+
+    row = df_submenu[
+        df_submenu["NamaTemplate"] == template
+    ].iloc[0]
+
+    isi = row["IsiTemplate"]
+
+    st.subheader(template)
+
+    st.text_area(
+        "Isi Template",
+        isi,
+        height=250
+    )
+
+    st.code(isi)
+
+# =====================================================
+# MANAGE TEMPLATE
+# =====================================================
+
+if menu == "Kelola Template":
+
+    st.title("⚙️ Kelola Template")
+
+    df = load_data()
+
+    edited_df = st.data_editor(
+        df,
+        use_container_width=True,
+        num_rows="dynamic",
+        hide_index=True
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        if st.button(
+            "💾 Simpan Perubahan",
+            use_container_width=True
+        ):
+
+            sheet.clear()
+
+            sheet.update(
+                [
+                    edited_df.columns.tolist()
+                ]
+                +
+                edited_df.values.tolist()
             )
 
-            nama_template = st.selectbox(
-                "Template",
-                list(data[kategori][submenu].keys())
+            st.cache_data.clear()
+
+            st.success(
+                "Data berhasil disimpan ke Google Sheets"
             )
 
-            isi_baru = st.text_area(
-                "Edit Template",
-                value=data[kategori][submenu][nama_template],
-                height=250
-            )
+            st.rerun()
 
-            if st.button("💾 Update"):
-                data[kategori][submenu][nama_template] = isi_baru
-                save_data(data)
-                st.success("Template berhasil diperbarui.")
+    with col2:
 
-    elif aksi == "Hapus":
-        kategori = st.selectbox("Kategori", list(data.keys()))
+        if st.button(
+            "🔄 Refresh",
+            use_container_width=True
+        ):
 
-        if data[kategori]:
-            submenu = st.selectbox(
-                "Submenu",
-                list(data[kategori].keys())
-            )
+            st.cache_data.clear()
+            st.rerun()
 
-            nama_template = st.selectbox(
-                "Template",
-                list(data[kategori][submenu].keys())
-            )
+    st.info(
+        """
+        Cara penggunaan:
 
-            if st.button("🗑️ Hapus"):
-                del data[kategori][submenu][nama_template]
+        ➕ Tambah template = tambah baris baru
 
-                if not data[kategori][submenu]:
-                    del data[kategori][submenu]
+        ✏️ Edit template = ubah langsung pada tabel
 
-                save_data(data)
-                st.success("Template berhasil dihapus.")
+        🗑️ Hapus template = hapus baris
+
+        💾 Simpan Perubahan = simpan ke Google Sheets
+        """
+    )
