@@ -289,27 +289,27 @@ with c4:
     )
 
 # =====================================================
-# BARIS 2 (CLOSE)
+# BARIS 2 
 # =====================================================
 
-c5, c6, c7 = st.columns(3)
+c11, c12, c13 = st.columns(3)
 
-with c5:
+with c11:
     copy_button(
-        "CLOSE ISOLIR",
-        "IZIN CLOSE KARENA PELANGGAN INDIKASI ISOLIR. #PERCEPATAN BO."
+        "MUTASI 1",
+        "Dikarenakan ada ketidaksesuaian dalam pemilihan Jenis Komplain dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
     )
 
-with c6:
+with c12:
     copy_button(
-        "CLOSE NORMAL",
-        "IZIN CLOSE KARENA PELANGGAN KONFIRMASI NORMAL."
+        "MUTASI 2",
+        "Dikarenakan ada ketidaksesuaian dalam pemilihan Jenis Tiket dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
     )
 
-with c7:
+with c13:
     copy_button(
-        "CLOSE OB",
-        "IZIN CLOSE KARENA SUDAH DIKONFIRMASI DAN DIEDUKASI TIM OUTBOUND."
+        "MUTASI 3",
+        "Dikarenakan ada ketidaksesuaian dalam pemilihan Posisi Tiket Komplain dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
     )
 
 # =====================================================
@@ -340,24 +340,24 @@ with c10:
 # BARIS 4
 # =====================================================
 
-c11, c12, c13 = st.columns(3)
+c5, c6, c7 = st.columns(3)
 
-with c11:
+with c5:
     copy_button(
-        "MUTASI 1",
-        "Dikarenakan ada ketidaksesuaian dalam pemilihan Jenis Komplain dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
+        "CLOSE ISOLIR",
+        "IZIN CLOSE KARENA PELANGGAN INDIKASI ISOLIR. #PERCEPATAN BO."
     )
 
-with c12:
+with c6:
     copy_button(
-        "MUTASI 2",
-        "Dikarenakan ada ketidaksesuaian dalam pemilihan Jenis Tiket dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
+        "CLOSE NORMAL",
+        "IZIN CLOSE KARENA PELANGGAN KONFIRMASI NORMAL."
     )
 
-with c13:
+with c7:
     copy_button(
-        "MUTASI 3",
-        "Dikarenakan ada ketidaksesuaian dalam pemilihan Posisi Tiket Komplain dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
+        "CLOSE OB",
+        "IZIN CLOSE KARENA SUDAH DIKONFIRMASI DAN DIEDUKASI TIM OUTBOUND."
     )
 # =====================================================
 # KELOLA TEMPLATE
