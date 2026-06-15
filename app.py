@@ -253,51 +253,112 @@ if menu == "Lihat Template":
     st.divider()
 
     # ============================================
-    # TEMPLATE CEPAT
-    # ============================================
+# TEMPLATE CEPAT
+# ============================================
 
-    st.markdown("### ⚡ Template Cepat")
+st.markdown("### ⚡ Template Cepat")
 
-    col1, col2, col3 = st.columns(3)
+# =====================================================
+# BARIS 1 (GANGGUAN)
+# =====================================================
 
-    with col1:
-        copy_button(
-            "UNISOLIR",
-            "UNISOLIR"
-        )
+c1, c2, c3, c4 = st.columns(4)
 
-    with col2:
-        copy_button(
-            "ISOLIR",
-            "ISOLIR"
-        )
+with c1:
+    copy_button(
+        "LINKLOSS",
+        "DEAR TIM NOC SBU, MOHON DIBANTU PENGECEKAN TERKAIT PELAPORAN GANGGUAN - LINK LOSS YANG DIALAMI USER DAN DIBANTU TINDAK LANJUT PENANGANANNYA SEGERA. STATUS PEMBAYARAN LUNAS DAN STATUS LAYANAN PADA ICRM+ UNISOLIR. TERIMA KASIH."
+    )
 
-    with col3:
-        copy_button(
-            "MASIH PERIODE",
-            "MASIH PERIODE PENGGUNAAN"
-        )
+with c2:
+    copy_button(
+        "DOWN",
+        "DEAR TIM NOC RITEL PUSAT, MOHON DIBANTU PENGECEKAN TERKAIT PELAPORAN GANGGUAN - INTERNET DOWN YANG DIALAMI USER DAN DIBANTU TINDAK LANJUT PENANGANANNYA SEGERA. STATUS PEMBAYARAN LUNAS DAN STATUS LAYANAN PADA ICRM+ UNISOLIR. TERIMA KASIH."
+    )
 
-    col4, col5, col6 = st.columns(3)
+with c3:
+    copy_button(
+        "SLOW",
+        "DEAR TIM NOC RITEL PUSAT, MOHON DIBANTU PENGECEKAN TERKAIT PELAPORAN GANGGUAN - INTERNET SLOW YANG DIALAMI USER DAN DIBANTU TINDAK LANJUT PENANGANANNYA SEGERA. STATUS PEMBAYARAN LUNAS DAN STATUS LAYANAN PADA ICRM+ UNISOLIR. TERIMA KASIH."
+    )
 
-    with col4:
-        copy_button(
-            "MUTASI 1",
-            "Dikarenakan ada ketidaksesuaian dalam pemilihan Jenis Komplain dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
-        )
+with c4:
+    copy_button(
+        "INTERMITTEN",
+        "DEAR TIM NOC RITEL PUSAT, MOHON DIBANTU PENGECEKAN TERKAIT PELAPORAN GANGGUAN - INTERMITTEN YANG DIALAMI USER DAN DIBANTU TINDAK LANJUT PENANGANANNYA SEGERA. STATUS PEMBAYARAN LUNAS DAN STATUS LAYANAN PADA ICRM+ UNISOLIR. TERIMA KASIH."
+    )
 
-    with col5:
-        copy_button(
-            "MUTASI 2",
-            "Dikarenakan ada ketidaksesuaian dalam pemilihan Jenis Tiket dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
-        )
+# =====================================================
+# BARIS 2 (CLOSE)
+# =====================================================
 
-    with col6:
-        copy_button(
-            "MUTASI 3",
-            "Dikarenakan ada ketidaksesuaian dalam pemilihan Posisi Tiket Komplain dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
-        )
+c5, c6, c7 = st.columns(3)
 
+with c5:
+    copy_button(
+        "CLOSE ISOLIR",
+        "IZIN CLOSE KARENA PELANGGAN INDIKASI ISOLIR. #PERCEPATAN BO."
+    )
+
+with c6:
+    copy_button(
+        "CLOSE NORMAL",
+        "IZIN CLOSE KARENA PELANGGAN KONFIRMASI NORMAL."
+    )
+
+with c7:
+    copy_button(
+        "CLOSE OB",
+        "IZIN CLOSE KARENA SUDAH DIKONFIRMASI DAN DIEDUKASI TIM OUTBOUND."
+    )
+
+# =====================================================
+# BARIS 3
+# =====================================================
+
+c8, c9, c10 = st.columns(3)
+
+with c8:
+    copy_button(
+        "UNISOLIR",
+        "UNISOLIR"
+    )
+
+with c9:
+    copy_button(
+        "ISOLIR",
+        "ISOLIR"
+    )
+
+with c10:
+    copy_button(
+        "MASIH PERIODE",
+        "MASIH PERIODE PENGGUNAAN"
+    )
+
+# =====================================================
+# BARIS 4
+# =====================================================
+
+c11, c12, c13 = st.columns(3)
+
+with c11:
+    copy_button(
+        "MUTASI 1",
+        "Dikarenakan ada ketidaksesuaian dalam pemilihan Jenis Komplain dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
+    )
+
+with c12:
+    copy_button(
+        "MUTASI 2",
+        "Dikarenakan ada ketidaksesuaian dalam pemilihan Jenis Tiket dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
+    )
+
+with c13:
+    copy_button(
+        "MUTASI 3",
+        "Dikarenakan ada ketidaksesuaian dalam pemilihan Posisi Tiket Komplain dan berdasarkan analisis yang kami lakukan. Maka akan kami lakukan pergantian."
+    )
 # =====================================================
 # KELOLA TEMPLATE
 # =====================================================
