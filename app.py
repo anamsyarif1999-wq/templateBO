@@ -320,8 +320,8 @@ c8, c9, c10 = st.columns(3)
 
 with c8:
     copy_button(
-        "UNISOLIR",
-        "UNISOLIR"
+        "DATA TIDAK DITEMUKAN",
+        "DATA TIDAK DITEMUKAN"
     )
 
 with c9:
