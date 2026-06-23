@@ -267,25 +267,25 @@ c1, c2, c3, c4 = st.columns(4)
 with c1:
     copy_button(
         "LINKLOSS",
-        "DEAR TIM NOC SBU, MOHON DIBANTU PENGECEKAN TERKAIT PELAPORAN GANGGUAN - LINK LOSS YANG DIALAMI USER DAN DIBANTU TINDAK LANJUT PENANGANANNYA SEGERA. STATUS PEMBAYARAN LUNAS DAN STATUS LAYANAN PADA ICRM+ UNISOLIR. TERIMA KASIH."
+        "Dear Tim NOC SBU, mohon bantuan pengecekan dan penanganan segera terkait gangguan Link Loss yang dialami user. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Mohon tindak lanjut dan update hasil pengecekannya. Terima kasih."
     )
 
 with c2:
     copy_button(
         "DOWN",
-        "DEAR TIM NOC RITEL PUSAT, MOHON DIBANTU PENGECEKAN TERKAIT PELAPORAN GANGGUAN - INTERNET DOWN YANG DIALAMI USER DAN DIBANTU TINDAK LANJUT PENANGANANNYA SEGERA. STATUS PEMBAYARAN LUNAS DAN STATUS LAYANAN PADA ICRM+ UNISOLIR. TERIMA KASIH."
+        "Dear Tim NOC Ritel Pusat, mohon bantuan pengecekan dan penanganan segera terkait pelaporan gangguan internet down yang dialami user. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Mohon tindak lanjut dan update hasil pengecekannya. Terima kasih."
     )
 
 with c3:
     copy_button(
         "SLOW",
-        "DEAR TIM NOC RITEL PUSAT, MOHON DIBANTU PENGECEKAN TERKAIT PELAPORAN GANGGUAN - INTERNET SLOW YANG DIALAMI USER DAN DIBANTU TINDAK LANJUT PENANGANANNYA SEGERA. STATUS PEMBAYARAN LUNAS DAN STATUS LAYANAN PADA ICRM+ UNISOLIR. TERIMA KASIH."
+        "Dear Tim NOC Ritel Pusat, mohon bantuan pengecekan dan penanganan segera terkait pelaporan gangguan internet slow yang dialami user. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Mohon tindak lanjut dan update hasil pengecekannya. Terima kasih."
     )
 
 with c4:
     copy_button(
         "INTERMITTEN",
-        "DEAR TIM NOC RITEL PUSAT, MOHON DIBANTU PENGECEKAN TERKAIT PELAPORAN GANGGUAN - INTERMITTEN YANG DIALAMI USER DAN DIBANTU TINDAK LANJUT PENANGANANNYA SEGERA. STATUS PEMBAYARAN LUNAS DAN STATUS LAYANAN PADA ICRM+ UNISOLIR. TERIMA KASIH."
+        "Dear Tim NOC Ritel Pusat, mohon bantuan pengecekan dan penanganan segera terkait pelaporan gangguan intermitten yang dialami user. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Mohon tindak lanjut dan update hasil pengecekannya. Terima kasih."
     )
 
 # =====================================================
@@ -321,19 +321,19 @@ c8, c9, c10 = st.columns(3)
 with c8:
     copy_button(
         "DATA TIDAK DITEMUKAN",
-        "DATA TIDAK DITEMUKAN"
+        "Data tidak ditemukan"
     )
 
 with c9:
     copy_button(
         "ISOLIR",
-        "ISOLIR"
+        "Isolir"
     )
 
 with c10:
     copy_button(
         "MASIH PERIODE",
-        "MASIH PERIODE PENGGUNAAN"
+        "Masih periode penggunaan"
     )
 
 # =====================================================
