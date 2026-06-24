@@ -321,7 +321,7 @@ c8, c9, c10 = st.columns(3)
 with c8:
     copy_button(
         "DATA TIDAK DITEMUKAN",
-        "Data tidak ditemukan"
+        "data tidak ditemukan"
     )
 
 with c9:
@@ -333,7 +333,7 @@ with c9:
 with c10:
     copy_button(
         "MASIH PERIODE",
-        "Masih periode penggunaan"
+        "masih periode penggunaan"
     )
 
 # =====================================================
