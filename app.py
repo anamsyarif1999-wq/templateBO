@@ -369,19 +369,19 @@ c5, c6, c7 = st.columns(3)
 with c5:
     copy_button(
         "ACS NOTIF GAGAL",
-        "Dear Tim NOC Ritel Pusat, mohon bantuan pengecekan dan penanganan segera terkait pelaporan gangguan internet xxx  yang dialami user. Reboot by system gagal, berikut lampirannya. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Mohon tindak lanjut dan update hasil pengecekannya. Terima kasih."
+        "Dear Tim NOC Ritel Pusat, mohon bantuan pengecekan dan penanganan segera terkait pelaporan gangguan internet xxx  yang dialami user. BO sudah bantu refresh ACS akan tetapi gagal, berikut lampirannya. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Mohon tindak lanjut dan update hasil pengecekannya. Terima kasih."
     )
 
 with c6:
     copy_button(
         "ACS (DEVICE NOT RESPONDING)",
-        "Dear Tim Outbound, mohon edukasi menunggu 5 sampai 10 menit karena sudah dibantu reboot by system berhasil (DEVICE NOT RESPONDING). Apabila pelanggan konfirmasi normal mutasi ke keluhan lain lain agar tiket dapat di close. Jika pelanggan konfirmasi masih gangguan xxxx, mohon dispose tiket ke NOC Ritel Pusat. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Terima kasih."
+        "Dear Tim Outbound, mohon edukasi menunggu 5 sampai 10 menit karena sudah dibantu reboot device berhasil akan tetapi refresh gagal (DEVICE NOT RESPONDING). Apabila pelanggan konfirmasi normal mutasi ke keluhan lain lain agar tiket dapat di close. Jika pelanggan konfirmasi masih gangguan xxxx, mohon dispose tiket ke NOC Ritel Pusat. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Terima kasih."
     )
 
 with c7:
     copy_button(
         "ACS BERHASIL",
-        "Dear Tim Outbound, mohon edukasi mencoba jaringan internetnya karena modem sudah dibantu reboot by system berhasil. Apabila pelanggan konfirmasi normal mutasi ke keluhan lain lain agar tiket dapat di close. Jika pelanggan konfirmasi masih gangguan xxxx, mohon dispose tiket ke NOC Ritel Pusat. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Terima kasih."
+        "Dear Tim Outbound, mohon edukasi mencoba jaringan internetnya karena modem sudah dibantu reboot device berhasil. Apabila pelanggan konfirmasi normal mutasi ke keluhan lain lain agar tiket dapat di close. Jika pelanggan konfirmasi masih gangguan xxxx, mohon dispose tiket ke NOC Ritel Pusat. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Terima kasih."
     )
 
 # =====================================================
