@@ -385,6 +385,18 @@ with c7:
     )
 
 # =====================================================
+# BARIS 5
+# =====================================================
+
+c5, c6, c7 = st.columns(3)
+
+with c6:
+    copy_button(
+        "ACS ID TIDAK DITEMUKAN",
+        "Dear Tim NOC Ritel Pusat, mohon bantuan pengecekan dan penanganan segera terkait pelaporan gangguan internet down yang dialami user. Data ID Pel tidak ditemukan pada ACS. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Mohon tindak lanjut dan update hasil pengecekannya. Terima kasih."
+    )
+
+# =====================================================
 # KELOLA TEMPLATE
 # =====================================================
 
