@@ -132,7 +132,7 @@ if menu == "Lihat Template":
 
     df = load_data()
 
-    st.title("📚 Template BO")
+    st.title("📚 BATMAN")
 
     if df.empty:
         st.warning("Belum ada data template.")
