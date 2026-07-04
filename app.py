@@ -9,7 +9,7 @@ import streamlit.components.v1 as components
 # =====================================================
 
 st.set_page_config(
-    page_title="Template BO",
+    page_title="BATMAN",
     page_icon="📚",
     layout="wide"
 )
