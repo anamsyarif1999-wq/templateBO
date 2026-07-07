@@ -1,4 +1,5 @@
 import streamlit as st
+import webbrowser
 import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
@@ -385,7 +386,7 @@ with c7:
     )
 
 # =====================================================
-# BARIS 5
+# BARIS 6
 # =====================================================
 
 c5, c6, c7 = st.columns(3)
@@ -395,6 +396,16 @@ with c6:
         "ACS ID TIDAK DITEMUKAN",
         "Dear Tim NOC Ritel Pusat, mohon bantuan pengecekan dan penanganan segera terkait pelaporan gangguan internet down yang dialami user. Data ID Pel tidak ditemukan pada ACS. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Mohon tindak lanjut dan update hasil pengecekannya. Terima kasih."
     )
+
+# =====================================================
+# BARIS 7
+# =====================================================
+
+c5, c6, c7 = st.columns(3)
+
+with c5:
+    if st.button("🖼️ Gabungkan Gambar"):
+    webbrowser.open_new_tab("https://imagy.app/id/combine-images/")
 
 # =====================================================
 # KELOLA TEMPLATE
