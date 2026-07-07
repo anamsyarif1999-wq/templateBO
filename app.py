@@ -404,8 +404,10 @@ with c6:
 c5, c6, c7 = st.columns(3)
 
 with c5:
-    if st.button("🖼️ Gabungkan Gambar"):
-    webbrowser.open_new_tab("https://imagy.app/id/combine-images/")
+     st.link_button(
+        "🖼️ Buka Imagy Combine Images",
+        "https://imagy.app/id/combine-images/"
+    )
 
 # =====================================================
 # KELOLA TEMPLATE
