@@ -370,7 +370,7 @@ c5, c6, c7 = st.columns(3)
 with c5:
     copy_button(
         "ACS NOTIF GAGAL",
-        "Dear Tim NOC Ritel Pusat, mohon bantuan pengecekan dan penanganan segera terkait pelaporan gangguan internet xxx  yang dialami user. BO sudah bantu refresh ACS akan tetapi gagal, berikut lampirannya. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Mohon tindak lanjut dan update hasil pengecekannya. Terima kasih."
+        "Dear Tim NOC Ritel Pusat, mohon bantuan pengecekan dan penanganan segera terkait pelaporan gangguan internet down yang dialami user. BO sudah bantu refresh visible parameter pada ACS akan tetapi gagal, berikut lampirannya. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Mohon tindak lanjut dan update hasil pengecekannya. Terima kasih."
     )
 
 with c6:
