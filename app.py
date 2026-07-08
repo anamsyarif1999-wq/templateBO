@@ -370,7 +370,7 @@ c5, c6, c7 = st.columns(3)
 with c5:
     copy_button(
         "ACS NOTIF GAGAL",
-        "Dear Tim NOC Ritel Pusat, mohon bantuan pengecekan dan penanganan segera terkait pelaporan gangguan internet down yang dialami user. BO sudah bantu refresh visible parameter pada ACS akan tetapi gagal, berikut lampirannya. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Mohon tindak lanjut dan update hasil pengecekannya. Terima kasih."
+        "Dear Tim NOC Ritel Pusat, mohon bantuan pengecekan dan penanganan segera terkait pelaporan gangguan internet xxxx yang dialami user. BO sudah bantu refresh visible parameter pada ACS akan tetapi gagal, berikut lampirannya. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Mohon tindak lanjut dan update hasil pengecekannya. Terima kasih."
     )
 
 with c6:
@@ -382,7 +382,7 @@ with c6:
 with c7:
     copy_button(
         "ACS BERHASIL",
-        "Dear Tim Outbound, mohon edukasi mencoba jaringan internetnya karena modem sudah dibantu refresh visible parameter berhasil dan reboot device juga berhasil. Apabila pelanggan konfirmasi normal mutasi ke keluhan lain lain agar tiket dapat di close. Jika pelanggan konfirmasi masih gangguan xxxx, mohon dispose tiket ke NOC Ritel Pusat. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Terima kasih."
+        "Dear Tim Outbound, mohon edukasi mencoba jaringan internetnya karena modem sudah dibantu refresh visible parameter berhasil dan reboot device juga berhasil. Apabila pelanggan konfirmasi normal mohon close tiket (#pelanggankonfirmasinormal). Jika pelanggan informasikan masih gangguan xxxx, maka mutasi tiket ke gangguan agar dispose ke NOC Ritel Pusat. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Terima kasih."
     )
 
 # =====================================================
