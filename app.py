@@ -352,13 +352,13 @@ with c5:
 with c6:
     copy_button(
         "CLOSE NORMAL",
-        "IZIN CLOSE KARENA PELANGGAN KONFIRMASI NORMAL."
+        "IZIN CLOSE KARENA INTERNET SUDAH BISA DIGUNAKAN DAN NORMAL.#pelanggankonfirmasinormal"
     )
 
 with c7:
     copy_button(
         "CLOSE OB",
-        "IZIN CLOSE KARENA SUDAH DIKONFIRMASI DAN DIEDUKASI TIM OUTBOUND."
+        "IZIN CLOSE KARENA SUDAH DIKONFIRMASI DAN DIEDUKASI OLEH TIM OUTBOUND."
     )
 
 # =====================================================
