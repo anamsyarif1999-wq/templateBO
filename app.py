@@ -405,7 +405,7 @@ c5, c6, c7 = st.columns(3)
 
 with c5:
      st.link_button(
-        "🖼️ Buka Imagy Combine Images",
+        "🖼️ GABUNGKAN EVIDENCE",
         "https://imagy.app/id/combine-images/"
     )
 
