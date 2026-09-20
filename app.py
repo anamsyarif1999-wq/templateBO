@@ -382,7 +382,7 @@ with c6:
 with c7:
     copy_button(
         "ACS BERHASIL",
-        "Dear Tim Outbound, mohon edukasi mencoba jaringan internetnya karena modem sudah dibantu refresh visible parameter berhasil dan reboot device juga berhasil. Apabila pelanggan konfirmasi normal mohon close tiket (#pelanggankonfirmasinormal). Jika pelanggan informasikan masih gangguan xxxx, maka mutasi tiket ke gangguan agar dispose ke NOC Ritel Pusat. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Terima kasih."
+        "Dear Tim Outbound, mohon edukasi mencoba jaringan internetnya karena modem sudah dibantu refresh visible parameter berhasil dan reboot device juga berhasil. Apabila pelanggan konfirmasi normal mohon close tiket (#pelanggankonfirmasinormal). Jika pelanggan informasikan masih gangguan, mohon probing lebih lanjut lalu sesuaikan tiket. Berdasarkan verifikasi, status pembayaran pelanggan lunas dan status layanan pada ICRM+ adalah Unisolir. Terima kasih."
     )
 
 # =====================================================
